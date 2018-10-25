@@ -6,7 +6,6 @@ plugin_module_name = ''
 
 PLUGINS_BASE_NAME = 'facili.plugins'
 
-
 def data(key):
     def data_decorator(func):
         register_plugin_data_func(key, func)
@@ -56,6 +55,7 @@ def get_data(keys=[]):
     output = {}
     for key in plugin_data_func:
         if not keys or any((key == k or key.startswith(k + '.') for k in keys)):
-            func = plugin_data_func[key]
-            output[key] = func()
+            if '._' not in key or key in keys:
+                func = plugin_data_func[key]
+                output[key] = func()
     return output

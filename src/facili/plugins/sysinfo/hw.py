@@ -1,37 +1,34 @@
 
 from facili import data
-import random
+import lshw
+import dmi
+
 
 @data('cpu')
 def cpu_info():
-    return {
-        'vendor': 'GenuineIntel',
-        'model': 'Xeon E7 v2',
-        'processors': 1,
-        'cores': 6,
-        'logical_cores': 12,
-        'speed': '1.8 GHz',
-        'rand': random.randint(1, 100)
-    }
+    return lshw.cpu_info()
 
 
 @data('mem')
 def mem_info():
-    return {
-        "size": "16 GB",
-        "type": "DDR3",
-        "speed": "1600 MHz"
-    }
-
-
-@data('raid')
-def raid_info():
-    return {
-    }
+    return lshw.mem_info()
 
 
 @data('disk')
 def disk_info():
-    return {
-    }
+    return lshw.disk_info()
 
+
+@data('net')
+def net_info():
+    return lshw.net_info()
+
+
+@data('_lshw')
+def _lshw_info():
+    return lshw.get_lshw_info()
+
+
+@data('_dmi')
+def _dmi_info():
+    return dmi.get_dmi_info()
