@@ -59,3 +59,13 @@ def get_data(keys=[]):
                 func = plugin_data_func[key]
                 output[key] = func()
     return output
+
+def list_plugins():
+    plugins = {}
+    import facili.plugins
+    package = facili.plugins
+    for importer, submodule, ispkg in pkgutil.iter_modules(package.__path__):
+        sm = importlib.import_module('facili.plugins.' + submodule)
+        plugins[submodule] = filter(None, sm.__doc__.split('\n'))
+    return plugins
+

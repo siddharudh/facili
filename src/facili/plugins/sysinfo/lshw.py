@@ -1,5 +1,6 @@
 import json
 from facili import human_readable_freq, human_readable_size, human_readable_speed
+import psutil
 
 def cpu_info():
     cpus = []
@@ -42,6 +43,7 @@ def disk_info():
         for vol in disk['children']:
             volumes.append({
                 'device': vol['logicalname'][0] if type(vol['logicalname']) == list else vol['logicalname'],
+                'mountpoint': vol['logicalname'][1] if type(vol['logicalname']) == list else '',
                 'size': human_readable_size(vol['size']),
                 'filesystem': vol['configuration'].get('filesystem', '')
             })
@@ -57,14 +59,25 @@ def net_info():
     nets = []
     find_all(get_lshw_info(), nets, class_='network')
     info = []
+    addrs = psutil.net_if_addrs()
     for net in nets:
+        device = net['logicalname']
+        address = netmask = ''
+        if device in addrs:
+            for a in addrs[device]:
+                if a.family == 2:
+                    address = a.address
+                    netmask = sum([bin(int(x)).count("1") for x in a.netmask.split(".")])
+
         info.append({
+            'device': device,
             'vendor': net['vendor'],
             'model': net['product'],
-            'speed': human_readable_speed(net['capacity'])
+            'speed': human_readable_speed(net['capacity']),
+            'address': address,
+            'netmask': netmask
         })
     return info
-
 
 lshw_info = None
 

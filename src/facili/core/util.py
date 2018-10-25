@@ -2,7 +2,11 @@
 def human_readable(val, suffixes, base):
     for i, suffix in enumerate(suffixes):
         if val >= base ** (len(suffixes) - i - 1):
-            return '%0.2f %s' % (float(val) / base ** (len(suffixes) - i - 1), suffix)
+            v = round(float(val) / base ** (len(suffixes) - i - 1), 2)
+            if v == int(v):
+                return '%d %s' % (int(v), suffix)
+            else:
+                return '%0.2f %s' % (v, suffix)
 
 
 def human_readable_size(size, base=1024):
