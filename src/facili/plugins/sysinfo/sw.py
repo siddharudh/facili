@@ -1,4 +1,4 @@
-from facili import data
+from facili import data, cache
 import subprocess
 import re
 
@@ -41,14 +41,8 @@ def extract(pattern, data):
         pass
     return ''
 
-sw_versions = None
 
 def get_sw_versions():
-    global sw_versions
-
-    if sw_versions:
-        return sw_versions
-
     sw_versions = []
     for program, command, pattern in SW_VER_ENTRIES:
         version = extract(pattern, program_output(command))
@@ -58,5 +52,6 @@ def get_sw_versions():
 
 
 @data('ver')
+@cache(3600)
 def sw_version_info():
     return get_sw_versions()

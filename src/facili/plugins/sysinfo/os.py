@@ -1,9 +1,10 @@
-from facili import data
+from facili import data, cache
 import psutil
 import socket
 import datetime
 
 @data('mount')
+@cache(60)
 def mount_data():
     mount_points = []
     for dp in psutil.disk_partitions(True):
@@ -11,6 +12,7 @@ def mount_data():
     return mount_points
 
 @data('')
+@cache(60)
 def misc_data():
     return {
         'hostname': socket.gethostname(),
