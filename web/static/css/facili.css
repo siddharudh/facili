@@ -35,3 +35,8 @@ body {
         column-count: 5;
     }
 }
+
+progress::-moz-progress-bar { background: #08d; }
+
+progress::-webkit-progress-bar { background: #ccc; }
+progress::-webkit-progress-value { background: #08d; }

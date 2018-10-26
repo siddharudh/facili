@@ -6,9 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <link rel="stylesheet" href="/static/css/bootstrap.min.css">
   <link rel="stylesheet" href="/static/css/facili.css">
-  <script src="/static/js/jquery.min.js"></script>
-  <script src="/static/js/popper.min.js"></script>
-  <script src="/static/js/bootstrap.min.js"></script>
 </head>
 <body>
   <div class="container-fluid">
@@ -33,14 +30,12 @@
       % end
     </div>
   </div>
-  <script>
-    const lightColors = [ "Snow", "Honeydew", "Azure", "OldLace",
-                    "GhostWhite", "Ivory", "WhiteSmoke", "AliceBlue",  "Beige",
-                    "MintCream",  "Seashell", "LavenderBlush",
-                    "AntiqueWhite", "FloralWhite", "Linen", "MistyRose"];
-    $(".card").each(function(index) {
-      $(this).css('background-color', lightColors[index % lightColors.length]);
-    });
-  </script>
+
+<!-- Scripts -->
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/popper.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="/static/js/facili.js"></script>
+
 </body>
 </html>

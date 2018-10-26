@@ -1,15 +1,21 @@
 from facili import data
 from collections import OrderedDict
 import psutil
+import os
 
 
 @data('cpu')
 def cpu_usage():
-    per_cpu_percent = psutil.cpu_percent(0.1, True)
+    per_cpu_percent = psutil.cpu_percent(None, True)
     return {
         'per_cpu': per_cpu_percent,
         'avg': round(sum(per_cpu_percent) / len(per_cpu_percent), 2)
     }
+
+@data('load')
+def current_load():
+    one, five, fifteen = os.getloadavg()
+    return [round(one, 2), round(five, 2), round(fifteen, 2)]
 
 
 @data('mem')

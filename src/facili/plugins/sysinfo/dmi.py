@@ -10,7 +10,7 @@ def cpu_info():
         'model': proc[0]['Version'],
         'processors': len(proc),
         'cores': sum([int(p['Core Count']) for p in proc]),
-        'logical_cores': sum([int(p['Thread Count']) for p in proc]),
+        'threads': sum([int(p['Thread Count']) for p in proc]),
         'speed': proc[0]['Current Speed']
     }
 

@@ -10,7 +10,7 @@ def cpu_info():
         'model': cpus[0]['product'],
         'processors': len(cpus),
         'cores': sum([int(c['configuration']['cores']) for c in cpus]),
-        'logical_cores': sum([int(c['configuration']['threads']) for c in cpus]),
+        'threads': sum([int(c['configuration']['threads']) for c in cpus]),
         'speed': human_readable_freq(cpus[0]['size'])
     }
     
