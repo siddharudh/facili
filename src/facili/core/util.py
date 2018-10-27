@@ -16,21 +16,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-def human_readable(val, suffixes, base):
+def human_readable(val, suffixes, base, decimal=2):
     for i, suffix in enumerate(suffixes):
         if val >= base ** (len(suffixes) - i - 1):
-            v = round(float(val) / base ** (len(suffixes) - i - 1), 2)
+            v = round(float(val) / base ** (len(suffixes) - i - 1), decimal)
             if v == int(v):
                 return '%d %s' % (int(v), suffix)
             else:
                 return '%0.2f %s' % (v, suffix)
 
 
-def human_readable_size(size, base=1024):
+def human_readable_size(size, base=1024, decimal=2):
     if base == 1024:
-        return human_readable(size, ['TiB', 'GiB', 'MiB', 'KiB', 'Bytes'], 1024)
+        return human_readable(size, ['TiB', 'GiB', 'MiB', 'KiB', 'Bytes'], 1024, decimal)
     elif base == 1000:
-        return human_readable(size, ['TB', 'GB', 'MB', 'KB', 'Bytes'], 1000)
+        return human_readable(size, ['TB', 'GB', 'MB', 'KB', 'Bytes'], 1000, decimal)
 
 
 def human_readable_freq(freq):

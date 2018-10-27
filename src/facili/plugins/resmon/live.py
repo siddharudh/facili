@@ -20,6 +20,7 @@ from facili import data, cache
 from collections import OrderedDict
 import psutil
 import os
+import time
 
 
 @data('cpu')
@@ -60,21 +61,61 @@ def disk_usage():
     return usage
 
 
-@data('disk_io')
-@cache(5)
 def disk_io_usage():
     usage = OrderedDict()
     dio = psutil.disk_io_counters(True)
     for d in dio:
         usage[d] = vars(dio[d])
+    read_speed = write_speed = 0
+    try:
+        if hasattr(disk_io_usage, 't') and hasattr(disk_io_usage, 'r'):
+            t = time.time()
+            total_read_bytes = total_write_bytes = 0
+            for d in disk_io_usage.r:
+                if d == 'total':
+                    continue
+                read_bytes = usage[d]['read_bytes'] - disk_io_usage.r[d]['read_bytes']
+                write_bytes = usage[d]['write_bytes'] - disk_io_usage.r[d]['write_bytes']
+                usage[d]['read_speed'] = int(read_bytes / (t - disk_io_usage.t))
+                usage[d]['write_speed'] = int(write_bytes / (t - disk_io_usage.t))
+                total_read_bytes += read_bytes
+                total_write_bytes += write_bytes
+            usage['total'] = {
+                'read_speed': int(total_read_bytes / (t - disk_io_usage.t)),
+                'write_speed': int(total_write_bytes / (t - disk_io_usage.t))
+            }
+    except:
+        pass
     return usage
 
+disk_io_usage_wrapped = data('disk_io')(cache(2)(disk_io_usage))
 
-@data('net_io')
-@cache(5)
+
 def net_io_usage():
     usage = OrderedDict()
     nio = psutil.net_io_counters(True)
     for n in nio:
         usage[n] = vars(nio[n])
+    try:
+        if hasattr(net_io_usage, 't') and hasattr(net_io_usage, 'r'):
+            t = time.time()
+            total_recv_bytes = total_sent_bytes = 0
+            for d in net_io_usage.r:
+                if d == 'total':
+                    continue
+                bytes_sent = usage[d]['bytes_sent'] - net_io_usage.r[d]['bytes_sent']
+                bytes_recv = usage[d]['bytes_recv'] - net_io_usage.r[d]['bytes_recv']
+                usage[d]['send_speed'] = int(bytes_sent / (t - net_io_usage.t))
+                usage[d]['recv_speed'] = int(bytes_recv / (t - net_io_usage.t))
+                total_sent_bytes += bytes_sent
+                total_recv_bytes += bytes_recv
+            usage['total'] = {
+                'send_speed': int(total_sent_bytes / (t - net_io_usage.t)),
+                'recv_speed': int(total_recv_bytes / (t - net_io_usage.t))
+            }
+    except:
+        raise
+        pass
     return usage
+
+net_io_usage_wrapped = data('net_io')(cache(2)(net_io_usage))

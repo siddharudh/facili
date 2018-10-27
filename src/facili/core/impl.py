@@ -22,18 +22,12 @@ import time
 plugin_data_func = {}
 plugin_module_name = ''
 
-cache_func_output = {}
-
 PLUGINS_BASE_NAME = 'facili.plugins'
 
 def data(key):
     def data_decorator(func):
         register_plugin_data_func(key, func)
-        def func_wrapper():
-            if not key or type(key) != str:
-                raise Exception('Invalid key')
-            return func()
-        return func_wrapper
+        return func
     return data_decorator
 
 
@@ -41,12 +35,10 @@ def cache(dur=31536000000):
     global cache_func_output
     def cache_decorator(func):
         def func_wrapper():
-            r = cache_func_output.get(func)
-            if r and dur > (time.time() - r[1]):
-                return r[0]
-            output = func()
-            cache_func_output[func] = output, time.time()
-            return output
+            if not hasattr(func, 'r') or not hasattr(func, 't') or (time.time() - func.t) > dur:
+                func.r = func()
+                func.t = time.time()
+            return func.r
         return func_wrapper
     return cache_decorator
 

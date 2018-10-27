@@ -80,6 +80,14 @@ var liveLoadChart = new Chart("live-load-chart", {
             yAxes: [{
                 ticks: {
                     beginAtZero: true
+                },
+                gridLines: {
+                    display:false
+                }
+            }],
+            xAxes: [{
+                gridLines: {
+                    display:false
                 }
             }]
         }
@@ -113,10 +121,100 @@ var liveMemoryChart = new Chart("live-mem-chart", {
 });
 
 
+var liveDiskIOChart = new Chart("live-dio-chart", {
+    type: 'line',
+
+    data: {
+        labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+        datasets: [
+            {
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                label: 'read',
+
+                borderColor: 'blue',
+                backgroundColor: 'rgba(0,0,255,0.2)',
+                pointRadius: 0,
+                borderWidth: 1
+            },
+            {
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                label: 'write',
+                borderColor: 'red',
+                backgroundColor: 'rgba(255,0,0,0.2)',
+                pointRadius: 0,
+                borderWidth: 1
+            }
+        ]
+    },
+    options: {
+        maintainAspectRatio: false,
+        // legend: { display: false },
+        tooltips: { enabled: false },
+        scales: {
+            xAxes: [{
+                    gridLines: {
+                        display:false
+                    }
+                }],
+            yAxes: [{
+                    gridLines: {
+                        display:false
+                    }
+                }]
+        }
+    }
+});
+
+
+var liveNetworkChart = new Chart("live-net-chart", {
+    type: 'line',
+
+    data: {
+        labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+        datasets: [
+            {
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                label: 'recv',
+
+                borderColor: '#4a0',
+                backgroundColor: 'rgba(150,255,0,0.3)',
+                pointRadius: 0,
+                borderWidth: 1
+            },
+            {
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                label: 'send',
+                borderColor: '#d0f',
+                backgroundColor: 'rgba(200,0,255,0.3)',
+                pointRadius: 0,
+                borderWidth: 1
+            }
+        ]
+    },
+    options: {
+        maintainAspectRatio: false,
+        // legend: { display: false },
+        tooltips: { enabled: false },
+        scales: {
+            xAxes: [{
+                    gridLines: {
+                        display:false
+                    }
+                }],
+            yAxes: [{
+                    gridLines: {
+                        display:false
+                    }
+                }]
+        }
+    }
+});
+
+
 function percentUsageColor(pct) {
-    var green = pct <= 50 ? 220 : (100 - pct) * 220 / 50;
-    var red = pct >= 50 ? 220 : pct * 220 / 50;
-    return 'rgb(' + red + ', ' + green + ', 0)';
+    var green = Math.round(pct <= 50 ? 220 : (100 - pct) * 220 / 50);
+    var red = Math.round(pct >= 50 ? 220 : pct * 220 / 50);
+    return 'rgba(' + red + ', ' + green + ', 0, 255)';
 }
 
 function updateLiveDoughnetChart(chart, pct) {
@@ -126,14 +224,14 @@ function updateLiveDoughnetChart(chart, pct) {
     chart.update();
 }
 
-function updateLiveBarChart(chart, values, labels) {
-    chart.data.datasets[0].data = values;
-    if (labels != undefined) {
-        chart.data.labels = labels;
+function updateLiveBarChart(chart, labels, series1, series2) {
+    chart.data.labels = labels;
+    chart.data.datasets[0].data = series1;
+    if (series2 != undefined) {
+        chart.data.datasets[1].data = series2;
     }
     chart.update();
 }
-
 
 setInterval(function() {
     $.ajax({
@@ -146,7 +244,41 @@ setInterval(function() {
             updateLiveDoughnetChart(liveMemoryChart, Math.round(mem.percent));
 
             var load = result['resmon.live.load'];
-            updateLiveBarChart(liveLoadChart, load);
+            updateLiveBarChart(liveLoadChart, ['1min', '5min', '15min'], load);
+
+            var disk_io = result['resmon.live.disk_io']['total'];
+            labels = liveDiskIOChart.data.labels;
+            read_speeds = liveDiskIOChart.data.datasets[0].data;
+            write_speeds = liveDiskIOChart.data.datasets[1].data;;
+            if (disk_io != undefined) {
+                labels.push('');
+                read_speeds.push(disk_io.read_speed / (1024 * 1024));
+                write_speeds.push(disk_io.write_speed / (1024 * 1024));
+            }
+            if (labels.length >= 30) {
+                labels.shift();
+                read_speeds.shift();
+                write_speeds.shift();
+            }
+            updateLiveBarChart(liveDiskIOChart, labels, read_speeds, write_speeds);
+
+            var net_io = result['resmon.live.net_io']['total'];
+            console.log(net_io);
+            labels = liveNetworkChart.data.labels;
+            recv_speeds = liveNetworkChart.data.datasets[0].data;
+            send_speeds = liveNetworkChart.data.datasets[1].data;;
+            if (disk_io != undefined) {
+                labels.push('');
+                recv_speeds.push(net_io.recv_speed / 1024);
+                send_speeds.push(net_io.send_speed / 1024);
+            }
+            if (labels.length >= 30) {
+                labels.shift();
+                recv_speeds.shift();
+                send_speeds.shift();
+            }
+            console.log(recv_speeds, send_speeds)
+            updateLiveBarChart(liveNetworkChart, labels, recv_speeds, send_speeds);
     }});
 }, 1000);
 
