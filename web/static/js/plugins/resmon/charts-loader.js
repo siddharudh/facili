@@ -148,7 +148,7 @@ var liveDiskIOChart = new Chart("live-dio-chart", {
     },
     options: {
         maintainAspectRatio: false,
-        // legend: { display: false },
+        legend: { display: false },
         tooltips: { enabled: false },
         scales: {
             xAxes: [{
@@ -193,7 +193,7 @@ var liveNetworkChart = new Chart("live-net-chart", {
     },
     options: {
         maintainAspectRatio: false,
-        // legend: { display: false },
+        legend: { display: false },
         tooltips: { enabled: false },
         scales: {
             xAxes: [{
@@ -233,53 +233,46 @@ function updateLiveBarChart(chart, labels, series1, series2) {
     chart.update();
 }
 
-setInterval(function() {
-    $.ajax({
-        url: "/data?k=resmon.live",
-        success: function(result){
-            var cpu = result['resmon.live.cpu'];
-            updateLiveDoughnetChart(liveCPUChart, Math.round(cpu.avg));
 
-            var mem = result['resmon.live.mem'];
-            updateLiveDoughnetChart(liveMemoryChart, Math.round(mem.percent));
+function updateLiveCharts(result) {
+    var cpu = result['resmon.live.cpu'];
+    updateLiveDoughnetChart(liveCPUChart, Math.round(cpu.avg));
 
-            var load = result['resmon.live.load'];
-            updateLiveBarChart(liveLoadChart, ['1min', '5min', '15min'], load);
+    var mem = result['resmon.live.mem'];
+    updateLiveDoughnetChart(liveMemoryChart, Math.round(mem.percent));
 
-            var disk_io = result['resmon.live.disk_io']['total'];
-            labels = liveDiskIOChart.data.labels;
-            read_speeds = liveDiskIOChart.data.datasets[0].data;
-            write_speeds = liveDiskIOChart.data.datasets[1].data;;
-            if (disk_io != undefined) {
-                labels.push('');
-                read_speeds.push(disk_io.read_speed / (1024 * 1024));
-                write_speeds.push(disk_io.write_speed / (1024 * 1024));
-            }
-            if (labels.length >= 30) {
-                labels.shift();
-                read_speeds.shift();
-                write_speeds.shift();
-            }
-            updateLiveBarChart(liveDiskIOChart, labels, read_speeds, write_speeds);
+    var load = result['resmon.live.load'];
+    updateLiveBarChart(liveLoadChart, ['1min', '5min', '15min'], load);
 
-            var net_io = result['resmon.live.net_io']['total'];
-            console.log(net_io);
-            labels = liveNetworkChart.data.labels;
-            recv_speeds = liveNetworkChart.data.datasets[0].data;
-            send_speeds = liveNetworkChart.data.datasets[1].data;;
-            if (disk_io != undefined) {
-                labels.push('');
-                recv_speeds.push(net_io.recv_speed / 1024);
-                send_speeds.push(net_io.send_speed / 1024);
-            }
-            if (labels.length >= 30) {
-                labels.shift();
-                recv_speeds.shift();
-                send_speeds.shift();
-            }
-            console.log(recv_speeds, send_speeds)
-            updateLiveBarChart(liveNetworkChart, labels, recv_speeds, send_speeds);
-    }});
-}, 1000);
+    var disk_io = result['resmon.live.disk_io']['total'];
+    labels = liveDiskIOChart.data.labels;
+    read_speeds = liveDiskIOChart.data.datasets[0].data;
+    write_speeds = liveDiskIOChart.data.datasets[1].data;;
+    if (disk_io != undefined) {
+        labels.push('');
+        read_speeds.push(disk_io.read_speed / (1024 * 1024));
+        write_speeds.push(disk_io.write_speed / (1024 * 1024));
+    }
+    if (labels.length >= 30) {
+        labels.shift();
+        read_speeds.shift();
+        write_speeds.shift();
+    }
+    updateLiveBarChart(liveDiskIOChart, labels, read_speeds, write_speeds);
 
-
+    var net_io = result['resmon.live.net_io']['total'];
+    labels = liveNetworkChart.data.labels;
+    recv_speeds = liveNetworkChart.data.datasets[0].data;
+    send_speeds = liveNetworkChart.data.datasets[1].data;;
+    if (disk_io != undefined) {
+        labels.push('');
+        recv_speeds.push(net_io.recv_speed / 1024);
+        send_speeds.push(net_io.send_speed / 1024);
+    }
+    if (labels.length >= 30) {
+        labels.shift();
+        recv_speeds.shift();
+        send_speeds.shift();
+    }
+    updateLiveBarChart(liveNetworkChart, labels, recv_speeds, send_speeds);
+}

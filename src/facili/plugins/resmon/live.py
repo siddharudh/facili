@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-from facili import data, cache
+from facili import data, cache, human_readable_size
 from collections import OrderedDict
 import psutil
 import os
@@ -119,3 +119,16 @@ def net_io_usage():
     return usage
 
 net_io_usage_wrapped = data('net_io')(cache(2)(net_io_usage))
+
+
+@data('top5cpu')
+@cache(10)
+def top5_cpu():
+    data = [(p.pid, p.info['name'], round(p.info['cpu_percent'] or 0.0, 2), p.info['num_threads']) for p in sorted(psutil.process_iter(attrs=['name', 'cpu_percent', 'cpu_times', 'num_threads']), key=lambda p: p.info['cpu_percent'], reverse=True)][:5]
+    return data
+
+@data('top5mem')
+@cache(10)
+def top5_mem():
+    data = [(p.pid, p.info['name'], round(p.info.get('memory_percent') or 0.0, 2), human_readable_size(p.info.get('memory_info') and p.info['memory_info'].rss, 1024, 0)) for p in sorted(psutil.process_iter(attrs=['name', 'memory_percent', 'memory_info']), key=lambda p: p.info.get('memory_percent'), reverse=True)][:5]
+    return data
