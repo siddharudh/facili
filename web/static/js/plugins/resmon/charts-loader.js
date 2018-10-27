@@ -148,7 +148,7 @@ var liveDiskIOChart = new Chart("live-dio-chart", {
     },
     options: {
         maintainAspectRatio: false,
-        legend: { display: false },
+        // legend: { display: false },
         tooltips: { enabled: false },
         scales: {
             xAxes: [{
@@ -193,7 +193,7 @@ var liveNetworkChart = new Chart("live-net-chart", {
     },
     options: {
         maintainAspectRatio: false,
-        legend: { display: false },
+        // legend: { display: false },
         tooltips: { enabled: false },
         scales: {
             xAxes: [{

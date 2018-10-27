@@ -124,7 +124,7 @@ net_io_usage_wrapped = data('net_io')(cache(2)(net_io_usage))
 @data('top5cpu')
 @cache(10)
 def top5_cpu():
-    data = [(p.pid, p.info['name'], round(p.info['cpu_percent'] or 0.0, 2), p.info['num_threads']) for p in sorted(psutil.process_iter(attrs=['name', 'cpu_percent', 'cpu_times', 'num_threads']), key=lambda p: p.info['cpu_percent'], reverse=True)][:5]
+    data = [(p.pid, p.info['name'], round(p.info.get('cpu_percent') or 0.0, 2), p.info.get('num_threads')) for p in sorted(psutil.process_iter(attrs=['name', 'cpu_percent', 'cpu_times', 'num_threads']), key=lambda p: p.info.get('cpu_percent'), reverse=True)][:5]
     return data
 
 @data('top5mem')

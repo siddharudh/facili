@@ -22,7 +22,7 @@
     </ul>
     <div class="tab-content">
       % for i, plugin_id in enumerate(plugins):
-        <div id="{{plugin_id}}" class="container-fluid tab-pane fade{{' show active' if i == 0 else ''}}" role="tabpanel" aria-labelledby="{{plugin_id}}-tab"><br>
+        <div id="{{plugin_id}}" class="tab-pane fade{{' show active' if i == 0 else ''}}" role="tabpanel" aria-labelledby="{{plugin_id}}-tab"><br>
           <h3>{{plugins[plugin_id][0]}}</h3>
           <p>{{plugins[plugin_id][1]}}</p>
           % include('plugins/' + plugin_id + '/home.tpl')

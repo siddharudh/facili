@@ -3,40 +3,40 @@
 
 <div class="row no-gutters">
     <div class="col-lg-2 col-sm-4 col-6">
-        <div class="card mr-3 mb-3">
+        <div class="card m-1">
             <div class="card-header"><strong>CPU</strong>
                 
             </div>
-            <div class="chart-body py-3" style="height: 20vh;">
+            <div class="chart-body py-3" style="height: 25vh;">
                 <canvas id="live-cpu-chart">
                 </canvas>
             </div>
         </div>
     </div>
     <div class="col-lg-2 col-sm-4 col-6">
-        <div class="card mr-3 mb-3">
+        <div class="card m-1">
             <div class="card-header"><strong>Load</strong>
             </div>
-            <div class="chart-body" style="height: 20vh;">
+            <div class="chart-body" style="height: 25vh;">
                 <canvas id="live-load-chart"></canvas>
             </div>
         </div>
     </div>
     <div class="col-lg-2 col-sm-4 col-6">
-        <div class="card mr-3 mb-3">
+        <div class="card m-1">
             <div class="card-header"><strong>Memory</strong>
             </div>
-            <div class="chart-body py-3" style=" height: 20vh">
+            <div class="chart-body py-3" style=" height: 25vh">
                 <canvas id="live-mem-chart">
                 </canvas>
             </div>
         </div>
     </div>
     <div class="col-lg-2 col-sm-4 col-6">
-        <div class="card mr-3 mb-3">
+        <div class="card m-1">
             <div class="card-header"><strong>Disk space</strong>
             </div>
-            <div class="table-responsive" style=" height: 20vh;">
+            <div class="table-responsive" style=" height: 25vh;">
                 <table class="table" style="font-size: 0.8em">
                   % disks = data['resmon.live.disk']
                   % for d in disks:
@@ -47,26 +47,26 @@
         </div>
     </div>
     <div class="col-lg-2 col-sm-4 col-6">
-        <div class="card mr-3 mb-3">
+        <div class="card m-1">
             <div class="card-header"><strong>Disk I/O</strong>
             </div>
-            <div class="chart-body" style="height: 20vh;">
+            <div class="chart-body" style="height: 25vh;">
                 <canvas id="live-dio-chart"></canvas>
             </div>
         </div>
     </div>
     <div class="col-lg-2 col-sm-4 col-6">
-        <div class="card mr-3 mb-3">
+        <div class="card m-1">
             <div class="card-header"><strong>Network I/O</strong>
             </div>
-            <div class="chart-body" style="height: 20vh;">
+            <div class="chart-body" style="height: 25vh;">
                 <canvas id="live-net-chart"></canvas>
             </div>
         </div>
     </div>
 
     <div class="col-lg-4 col-sm-12 col-12">
-        <div class="card mr-3 mb-3">
+        <div class="card m-1">
             <div class="card-header"><strong>Top 5 CPU%</strong>
             </div>
             <div class="card-body table-responsive" style="height: 25vh;">
@@ -82,7 +82,7 @@
 
 
     <div class="col-lg-4 col-sm-12 col-12">
-        <div class="card mr-3 mb-3">
+        <div class="card m-1">
             <div class="card-header"><strong>Top 5 Mem%</strong>
             </div>
             <div class="card-body table-responsive" style="height: 25vh;">
@@ -97,7 +97,7 @@
     </div>
 
     <div class="col-lg-4 col-sm-6 col-12">
-        <div class="card mr-3 mb-3">
+        <div class="card m-1">
             <div class="card-header"><strong>Top 5 I/O</strong>
             </div>
             <div class="card-body table-responsive" style="height: 25vh;">
