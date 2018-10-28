@@ -23,20 +23,41 @@ def human_readable(val, suffixes, base, decimal=2):
             if v == int(v):
                 return '%d %s' % (int(v), suffix)
             else:
-                return '%0.2f %s' % (v, suffix)
+                return '%0.*f %s' % (decimal, v, suffix)
 
 
-def human_readable_size(size, base=1024, decimal=2):
+def human_readable_size(size, decimal=2, base=1024):
     if base == 1024:
         return human_readable(size, ['TiB', 'GiB', 'MiB', 'KiB', 'Bytes'], 1024, decimal)
     elif base == 1000:
         return human_readable(size, ['TB', 'GB', 'MB', 'KB', 'Bytes'], 1000, decimal)
 
 
-def human_readable_freq(freq):
-    return human_readable(freq, ['GHz', 'MHz', 'KHz', 'Hz'], 1000)
+def human_readable_freq(freq, decimal=2):
+    return human_readable(freq, ['GHz', 'MHz', 'KHz', 'Hz'], 1000, decimal)
 
 
-def human_readable_speed(speed):
-    return human_readable(speed, ['Gbps', 'Mbps', 'Kbps', 'bit/s'], 1000)
+def human_readable_speed(speed, decimal=2):
+    return human_readable(speed, ['Gbps', 'Mbps', 'Kbps', 'bit/s'], 1000, decimal)
 
+
+def human_readable_dur(total_seconds):
+    hhmmss = ''
+    ts = int(total_seconds)
+    hours = minutes = seconds = 0
+    hours = ts / 3600
+    if hours > 0:
+        hhmmss += '%d:' % hours
+        ts %= 3600
+    minutes = ts / 60
+    if hhmmss:
+        hhmmss += '%02d:' % minutes
+        ts %= 60
+    elif minutes > 0:
+        hhmmss += '%d:' % minutes
+        ts %= 60
+    if hhmmss:
+        hhmmss += '%02d' % ts
+    else:
+        hhmmss += '%d' % ts
+    return hhmmss

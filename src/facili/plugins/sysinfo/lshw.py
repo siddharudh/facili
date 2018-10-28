@@ -62,12 +62,12 @@ def disk_info():
             volumes.append({
                 'device': vol['logicalname'][0] if type(vol['logicalname']) == list else vol['logicalname'],
                 'mountpoint': vol['logicalname'][1] if type(vol['logicalname']) == list else '',
-                'size': human_readable_size(vol['size']),
+                'size': human_readable_size(vol['size'], 1),
                 'filesystem': vol['configuration'].get('filesystem', '')
             })
         info.append({
             'device': disk['logicalname'],
-            'size': human_readable_size(disk['size']),
+            'size': human_readable_size(disk['size'], 1),
             'volumes': volumes
         })
     return info

@@ -72,9 +72,13 @@
             <div class="card-body table-responsive" style="height: 25vh;">
                 <table id="top5-cpu" class="table table-sm">
                     <thead>
-                        <tr><th>Process</th><th>PID</th><th>CPU%</th><th>Threads</th></tr>
+                        <tr><th>PID</th><th>Process</th><th>CPU%</th><th style="text-align: right;">CPU Time</th></tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody>
+                        <tr style="height: 15vh">
+                            <td colspan="4" style="text-align: center; vertical-align: middle; color: #777">No data</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -88,24 +92,32 @@
             <div class="card-body table-responsive" style="height: 25vh;">
                 <table id="top5-mem" class="table table-sm">
                     <thead>
-                        <tr><th>Process</th><th>PID</th><th>Mem%</th><th>RSS</th></tr>
+                        <tr><th>PID</th><th>Process</th><th>Mem%</th><th>RSS</th></tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody>
+                        <tr style="height: 15vh">
+                            <td colspan="4" style="text-align: center; vertical-align: middle; color: #777">No data</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-4 col-sm-6 col-12">
+    <div class="col-lg-4 col-sm-12 col-12">
         <div class="card m-1">
             <div class="card-header"><strong>Top 5 I/O</strong>
             </div>
             <div class="card-body table-responsive" style="height: 25vh;">
                 <table id="top5-io" class="table table-sm">
                     <thead>
-                        <tr><th>Process</th><th>PID</th><th>Reads</th><th>Writes</th></tr>
+                        <tr><th>PID</th><th>Process</th><th>Reads</th><th>Writes</th></tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody>
+                        <tr style="height: 15vh">
+                            <td colspan="4" style="text-align: center; vertical-align: middle; color: #777">No data</td>
+                        </tr>
+                    </tbody>
                 </table>
             </div>
         </div>

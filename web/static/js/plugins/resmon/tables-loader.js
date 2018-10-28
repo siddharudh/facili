@@ -21,7 +21,7 @@ function updateLiveTables(result) {
     if (top5cpu != undefined) {
         $('#top5-cpu tbody').empty();
         top5cpu.forEach(function(row, i) {
-            $('#top5-cpu tbody').append("<tr><td>" + row[0] + "</td><td>" + row[1] + "</td><td>" + row[2] + "</td><td>" + row[3] + "</td></tr>");
+            $('#top5-cpu tbody').append('<tr><td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td><td style="text-align: right;">' + row[3] + '</td></tr>');
         });
     }
 
@@ -29,13 +29,13 @@ function updateLiveTables(result) {
     if (top5mem != undefined) {
         $('#top5-mem tbody').empty();
         top5mem.forEach(function(row, i) {
-            $('#top5-mem tbody').append("<tr><td>" + row[0] + "</td><td>" + row[1] + "</td><td>" + row[2] + "</td><td>" + row[3] + "</td></tr>");
+            $('#top5-mem tbody').append('<tr><td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td><td>' + row[3] + '</td></tr>');
         });
     }
 
     // var top5io = result['resmon.live.top5io'];
     // $('#top5-io tbody').empty();
     // top5io.forEach(function(row, i) {
-    //     $('#top5-io tbody').append("<tr><td>" + row[0] + "</td><td>" + row[1] + "</td><td>" + row[2] + "</td><td>" + row[3] + "</td></tr>");
+    //     $('#top5-io tbody').append('<tr><td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td><td>' + row[3] + '</td></tr>');
     // });
 }
