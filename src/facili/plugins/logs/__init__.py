@@ -24,7 +24,7 @@ System log files viewer
 
 from facili import data, cache
 import os
-import platform
+import psutil
 
 LINES_COUNT = 1000
 
@@ -35,10 +35,9 @@ def shell_command_output(cmd):
 
 
 SYSLOGS = []
-os_type = platform.system().lower()
-if os_type == 'linux':
+if psutil.LINUX:
     SYSLOGS = ['/var/log/syslog.2', '/var/log/syslog.1', '/var/log/syslog']
-elif os_type == 'darwin':
+elif psutil.MACOS:
     SYSLOGS = ['/var/log/system.log']
 
 @data('_syslog')
@@ -53,9 +52,9 @@ KERNLOGS = ['/var/log/kern.log.1', '/var/log/kern.log']
 @data('_kernlog')
 @cache(5)
 def get_kernlog():
-    if os_type == 'linux':
+    if psutil.LINUX:
         kernlogs = filter(lambda p: os.path.exists(p), KERNLOGS)
         if kernlogs:
             return shell_command_output('cat %s | tail -n%d' % (' '.join(kernlogs), LINES_COUNT))
-    elif os_type == 'darwin':
+    elif psutil.MACOS:
         return shell_command_output('dmesg | tail -n%d' % LINES_COUNT)

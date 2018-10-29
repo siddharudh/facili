@@ -33,9 +33,11 @@ function updateLiveTables(result) {
         });
     }
 
-    // var top5io = result['resmon.live.top5io'];
-    // $('#top5-io tbody').empty();
-    // top5io.forEach(function(row, i) {
-    //     $('#top5-io tbody').append('<tr><td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td><td>' + row[3] + '</td></tr>');
-    // });
+    var top5io = result['resmon.live.top5io'];
+    if (top5io) {
+        $('#top5-io tbody').empty();
+        top5io.forEach(function(row, i) {
+            $('#top5-io tbody').append('<tr><td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2][0] + '</td><td>' + row[2][1] + '</td></tr>');
+        });
+    }
 }

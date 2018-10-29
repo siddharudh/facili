@@ -132,3 +132,10 @@ def top5_cpu():
 def top5_mem():
     data = [(p.pid, p.info['name'], round(p.info.get('memory_percent') or 0.0, 1), human_readable_size(p.info.get('memory_info') and p.info['memory_info'].rss, 0)) for p in sorted(psutil.process_iter(attrs=['name', 'memory_percent', 'memory_info']), key=lambda p: p.info.get('memory_percent'), reverse=True)][:5]
     return data
+
+@data('top5io')
+@cache(5)
+def top5_io():
+    if not psutil.MACOS:
+        data = [(p.pid, p.info['name'], p.info['io_counters']) for p in sorted(psutil.process_iter(attrs=['name', 'io_counters']), key=lambda p: p.info['io_counters'] and sum(p.info['io_counters'][0:2]), reverse=True)][:5]
+        return data
