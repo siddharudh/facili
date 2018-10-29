@@ -35,7 +35,10 @@ def cpu_info():
 
 def mem_info():
     mem = find_first(get_lshw_info(), descr='System Memory')
-    speed = filter(lambda x: x.get('clock'), mem['children'])[0]['clock']
+    speed = ''
+    valid_children = filter(lambda x: x.get('clock'), mem['children'])
+    if valid_children:
+        speed = valid_children[0]['clock']
     type = 'Unknown'
     if speed > 2100000000:
         type = 'DDR4'
@@ -47,7 +50,7 @@ def mem_info():
         type = 'DDR1'
     return {
         'size': human_readable_size(mem['size']),
-        'speed': human_readable_freq(speed),
+        'speed': human_readable_freq(speed) if speed else '',
         'type': type
     }
 
@@ -63,7 +66,7 @@ def disk_info():
                 'device': vol['logicalname'][0] if type(vol['logicalname']) == list else vol['logicalname'],
                 'mountpoint': vol['logicalname'][1] if type(vol['logicalname']) == list else '',
                 'size': human_readable_size(vol['size'], 1),
-                'filesystem': vol['configuration'].get('filesystem', '')
+                'filesystem': vol.get('configuration', {}).get('filesystem', '')
             })
         info.append({
             'device': disk['logicalname'],

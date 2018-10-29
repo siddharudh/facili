@@ -125,10 +125,10 @@ var liveDiskIOChart = new Chart("live-dio-chart", {
     type: 'line',
 
     data: {
-        labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+        labels: new Array(30),
         datasets: [
             {
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                data: new Array(30),
                 label: 'read',
 
                 borderColor: 'blue',
@@ -137,7 +137,7 @@ var liveDiskIOChart = new Chart("live-dio-chart", {
                 borderWidth: 1
             },
             {
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                data: new Array(30),
                 label: 'write',
                 borderColor: 'red',
                 backgroundColor: 'rgba(255,0,0,0.2)',
@@ -170,10 +170,10 @@ var liveNetworkChart = new Chart("live-net-chart", {
     type: 'line',
 
     data: {
-        labels: ['', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+        labels: new Array(30),
         datasets: [
             {
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                data: new Array(30),
                 label: 'recv',
 
                 borderColor: '#4a0',
@@ -182,7 +182,7 @@ var liveNetworkChart = new Chart("live-net-chart", {
                 borderWidth: 1
             },
             {
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                data: new Array(30),
                 label: 'send',
                 borderColor: '#d0f',
                 backgroundColor: 'rgba(200,0,255,0.3)',
