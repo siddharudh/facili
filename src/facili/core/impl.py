@@ -57,6 +57,8 @@ def build_plugin_data_functions(module):
     global plugin_module_name
     package = importlib.import_module(module)
     for importer, submodule, ispkg in pkgutil.iter_modules(package.__path__):
+        if submodule.startswith('.') or submodule.startswith('_'):
+            continue
         plugin_module_name = module + '.' + submodule
         if ispkg:
             build_plugin_data_functions(plugin_module_name)
@@ -91,6 +93,8 @@ def list_plugins():
     import facili.plugins
     package = facili.plugins
     for importer, submodule, ispkg in pkgutil.iter_modules(package.__path__):
+        if submodule.startswith('.') or submodule.startswith('_'):
+            continue
         sm = importlib.import_module('facili.plugins.' + submodule)
         plugins[submodule] = filter(None, sm.__doc__.split('\n'))
     return plugins

@@ -92,9 +92,9 @@ def net_info():
 
         info.append({
             'device': device,
-            'vendor': net['vendor'],
-            'model': net['product'],
-            'speed': human_readable_speed(net['capacity']),
+            'vendor': net.get('vendor') or '',
+            'model': net.get('product') or '',
+            'speed': human_readable_speed(net.get('capacity') or 0),
             'address': address,
             'netmask': netmask
         })
