@@ -16,11 +16,26 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-from facili import data, cache, human_readable_size, human_readable_dur
+from facili import data, cache
+from facili import human_readable_size as hr_size
+from facili import human_readable_dur as hr_dur
 from collections import OrderedDict
 import psutil
 import os
 import time
+from pprint import pprint
+
+
+_t = None
+
+def time_it(label=None):
+   global _t
+   if not label or not _t:
+       _t = time.time()
+   else:
+       t = time.time()
+       print '%s: %f' % (label, t - _t)
+       _t = t
 
 
 @data('cpu')
@@ -121,21 +136,72 @@ def net_io_usage():
 net_io_usage_wrapped = data('net_io')(cache(2)(net_io_usage))
 
 
-@data('top5cpu')
-@cache(5)
-def top5_cpu():
-    data = [(p.pid, p.info['name'], round(p.info.get('cpu_percent') or 0.0, 1), human_readable_dur((p.info.get('cpu_times') or 0.0) and (p.info['cpu_times'].user + p.info['cpu_times'].system))) for p in sorted(psutil.process_iter(attrs=['name', 'cpu_percent', 'cpu_times', 'num_threads']), key=lambda p: p.info.get('cpu_percent'), reverse=True)][:5]
-    return data
+attrs = ['name', 'cmdline', 'cpu_percent', 'cpu_times', 'memory_percent', 'memory_info']
+if not psutil.MACOS:
+    attrs += ['io_counters']
 
-@data('top5mem')
-@cache(5)
-def top5_mem():
-    data = [(p.pid, p.info['name'], round(p.info.get('memory_percent') or 0.0, 1), human_readable_size(p.info.get('memory_info') and p.info['memory_info'].rss, 0)) for p in sorted(psutil.process_iter(attrs=['name', 'memory_percent', 'memory_info']), key=lambda p: p.info.get('memory_percent'), reverse=True)][:5]
-    return data
+proc_io_counters = {}
 
-@data('top5io')
-@cache(5)
-def top5_io():
+def top_processes(top_count):
+    t = time.time()
+    data = {}
+    proc_list = list(psutil.process_iter(attrs=attrs))
+
+    top_cpu = sorted(proc_list, key=lambda p: p.info.get('cpu_percent'),
+                      reverse=True)[:top_count]
+    data['cpu'] = [(p.pid, p.info['name'], ' '.join(p.info['cmdline']),
+                   round(p.info.get('cpu_percent'), 1),
+                   hr_dur(p.info['cpu_times'].user
+                                      + p.info['cpu_times'].system))
+                   for p in top_cpu]
+
+    top_mem = sorted(proc_list, key=lambda p: p.info.get('memory_percent'),
+                      reverse=True)[:top_count]
+    data['mem'] = [(p.pid, p.info['name'], ' '.join(p.info['cmdline']),
+                   round(p.info.get('memory_percent'), 1),
+                   hr_size(p.info['memory_info'].rss, 0))
+                   for p in top_mem]
+
     if not psutil.MACOS:
-        data = [(p.pid, p.info['name'], p.info['io_counters']) for p in sorted(psutil.process_iter(attrs=['name', 'io_counters']), key=lambda p: p.info['io_counters'] and sum(p.info['io_counters'][0:2]), reverse=True)][:5]
-        return data
+        global proc_io_counters
+        active_pids = set()
+        for p in proc_list:
+            active_pids.add(p.pid)
+            proc_io = proc_io_counters.get(p.pid, [])
+            if not proc_io:
+                proc_io_counters[p.pid] = proc_io
+            elif (t - proc_io[0][0]) > 62 or len(proc_io) > 30:
+                proc_io.pop(0)
+            proc_io.append((t, p.info['io_counters']))
+        proc_io_counters = {pid: proc_io_counters[pid] for pid in active_pids}
+
+        def total_read(pid):
+            global proc_io_counters
+            proc_io = proc_io_counters.get(pid)
+            if not proc_io:
+                return 0
+            return proc_io[-1][1].read_bytes - proc_io[0][1].read_bytes
+
+        def total_write(pid):
+            global proc_io_counters
+            proc_io = proc_io_counters.get(pid)
+            if not proc_io:
+                return 0
+            return proc_io[-1][1].write_bytes - proc_io[0][1].write_bytes
+
+        def total_io(pid):
+            return total_read(pid) + total_write(pid)
+
+        top_io = sorted(proc_list, key=lambda p: total_io(p.pid),
+                          reverse=True)[:top_count]
+        data['io'] = [(p.pid, p.info['name'], ' '.join(p.info['cmdline']),
+               hr_size(total_read(p.pid) or 0, 0),
+               hr_size(total_write(p.pid) or 0, 0))
+              for p in top_io]
+    return data
+
+
+@data('top5')
+@cache(5)
+def top5_processes():
+    return top_processes(5)

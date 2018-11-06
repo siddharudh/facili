@@ -17,27 +17,34 @@
 
 
 function updateLiveTables(result) {
-    var top5cpu = result['resmon.live.top5cpu'];
+    $('[data-toggle="tooltip"]').tooltip('dispose');
+
+    var top5cpu = result['resmon.live.top5']['cpu'];
     if (top5cpu != undefined) {
         $('#top5-cpu tbody').empty();
         top5cpu.forEach(function(row, i) {
-            $('#top5-cpu tbody').append('<tr><td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td><td style="text-align: right;">' + row[3] + '</td></tr>');
+            $('#top5-cpu tbody').append('<tr><td>' + row[0] + '</td><td><a href="#" data-toggle="tooltip" data-container="body" data-placement="top" title="' + row[2].substring(0, 600) + '">' + row[1] + '</a></td><td style="text-align: right;">' + row[3] + '</td><td style="text-align: right;">' + row[4] + '</td></tr>');
         });
     }
 
-    var top5mem = result['resmon.live.top5mem'];
+    var top5mem = result['resmon.live.top5']['mem'];
     if (top5mem != undefined) {
         $('#top5-mem tbody').empty();
         top5mem.forEach(function(row, i) {
-            $('#top5-mem tbody').append('<tr><td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2] + '</td><td>' + row[3] + '</td></tr>');
+            $('#top5-mem tbody').append('<tr><td>' + row[0] + '</td><td><a href="#"  data-toggle="tooltip" data-container="body"  data-placement="top" title="' + row[2].substring(0, 600) + '">' + row[1] + '</a></td><td style="text-align: right;">' + row[3] + '</td><td style="text-align: right;">' + row[4] + '</td></tr>');
         });
     }
 
-    var top5io = result['resmon.live.top5io'];
+    var top5io = result['resmon.live.top5']['io'];
+
     if (top5io) {
         $('#top5-io tbody').empty();
+        $('[data-toggle="tooltip"]').tooltip();
         top5io.forEach(function(row, i) {
-            $('#top5-io tbody').append('<tr><td>' + row[0] + '</td><td>' + row[1] + '</td><td>' + row[2][0] + '</td><td>' + row[2][1] + '</td></tr>');
+            $('#top5-io tbody').append('<tr><td>' + row[0] + '</td><td><a href="#" data-toggle="tooltip" data-container="body"  data-placement="top" title="' + row[2].substring(0, 600) + '">' + row[1] + '</a></td><td style="text-align: right;">' + row[3] + '</td><td style="text-align: right;">' + row[4] + '</td></tr>');
         });
     }
+    $('[data-toggle="tooltip"]').tooltip({
+        container: 'body'
+    });
 }

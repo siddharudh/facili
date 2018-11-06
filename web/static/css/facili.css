@@ -3,6 +3,10 @@ body {
     padding-top: 15px;
 }
 
+.tooltip-inner {
+   max-width: 650px;
+}
+
 .card-body {
     font-size: 0.95rem;
     padding: 0.4rem;
@@ -35,6 +39,9 @@ body {
         column-count: 5;
     }
 }
+
+.tooltip { pointer-events: none; }
+
 
 progress::-moz-progress-bar { background: #08d; }
 

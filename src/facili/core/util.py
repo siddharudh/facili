@@ -24,6 +24,7 @@ def human_readable(val, suffixes, base, decimal=2):
                 return '%d %s' % (int(v), suffix)
             else:
                 return '%0.*f %s' % (decimal, v, suffix)
+    return 0
 
 
 def human_readable_size(size, decimal=2, base=1024):
