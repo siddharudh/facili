@@ -20,7 +20,7 @@
 
 from bottle import route, view, request, response, static_file, template, run
 import bottle
-from facili import get_data, list_plugins
+from facili import get_data, list_plugins, start_timer_thread
 
 
 bottle.TEMPLATE_PATH = ['../web/templates']
@@ -42,5 +42,6 @@ def  serve_static_content(path):
 def serve_view():
     return {'plugins': list_plugins()}
 
+start_timer_thread()
 
 run(host='0.0.0.0', port=8888, server='twisted')

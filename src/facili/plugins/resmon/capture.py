@@ -16,64 +16,69 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-from facili import get_data, timer
-import json
-import time
-import datetime
-import os
-import psutil
-
-DATA_DIR = ['..', 'data', 'plugins', 'resmon']
+from facili import get_data, at_interval
+from capture_impl import *
 
 
-def dump_row(key, data):
-    file_path = os.path.join(*(DATA_DIR + [key, str(datetime.date.today()) + '.log']))
-    dir_path = os.path.dirname(file_path)
-    if not os.path.exists(dir_path):
-        os.makedirs(dir_path)
-    with open(file_path, 'a') as f:
-        data['t'] = int(time.time())
-        json.dump(data, f, separators=(',',':'))
-        f.write('\r\n')
+def get_key_data(key):
+    return get_data(key).get(key)
 
 
-"""
-Collect usage data
-    every 5 seconds: cpu, mem, disk_io, net_io
-    every 5 minutes: disk
-
-Split data files day-wise: 12 * 60 * 24 = 17280 entries per file
-Keep past 365 days data
-"""
-
-@timer(5)
-def dump_cpu_usage():
-    per_cpu_percent = psutil.cpu_percent(None, True)
-    loadavg = os.getloadavg()
-    loadavg = (round(loadavg[0], 2), round(loadavg[1], 2), round(loadavg[2], 2))
-    dump_row('cpu', {'c': per_cpu_percent, 'l': loadavg})
+@check_interval('cpu')
+def log_cpu_usage():
+    cpu = get_key_data('resmon.live.cpu')
+    load = get_key_data('resmon.live.load')
+    log_row('cpu', {'pc': cpu['per_cpu'], 'ac': cpu['avg'], 'l': load[0]})
 
 
-@timer(5)
-def dump_mem_usage():
-    dump_row('mem', get_data('resmon.live.mem'))
+@check_interval('mem')
+def log_mem_usage():
+    mem = get_key_data('resmon.live.mem')
+    log_row('mem', {'a': mem.get('available') / 1024 ** 2,
+                     'f': mem.get('free') / 1024 ** 2,
+                     'u': mem.get('used') / 1024 ** 2,
+                     'p': mem.get('percent')})
 
 
-@timer(5)
-def dump_disk_io_usage():
-    dump_row('disk_io', get_data('resmon.live.disk_io'))
+@check_interval('disk')
+def log_disk_usage():
+    du = get_key_data('resmon.live.disk')
+    disk = {}
+    for d in du:
+        if 'used' in du[d] and 'free' in du[d] and 'percent' in du[d]:
+            disk[d] = {'u': du[d]['used'] / 1024 ** 2,
+                       'f': du[d]['free'] / 1024 ** 2,
+                       'p': du[d]['percent']}
+    log_row('disk', disk)
 
 
-@timer(5)
-def dump_net_io_usage():
-    dump_row('net_io', get_data('resmon.live.net_io'))
+@check_interval('disk_io')
+def log_disk_io_usage():
+    dio = get_key_data('resmon.live.disk_io')
+    disk_io = {}
+    for d in dio:
+        r, w = dio[d].get('read_speed') or 0, dio[d].get('write_speed') or 0
+        if r + w:
+            disk_io[d] = {'r': r, 'w': w}
+    log_row('disk_io', disk_io)
 
 
-def dump_all():
-    dump_cpu_usage()
-    dump_mem_usage()
-    dump_disk_io_usage()
-    dump_net_io_usage()
+@check_interval('net_io')
+def log_net_io_usage():
+    nio = get_key_data('resmon.live.net_io')
+    net_io = {}
+    for n in nio:
+        r, s = nio[n].get('recv_speed') or 0, nio[n].get('send_speed') or 0
+        if r + s:
+            net_io[n] = {'r': r, 's': s}
+    log_row('net_io', net_io)
 
 
+@at_interval(1)
+def log_all():
+    log_cpu_usage()
+    log_mem_usage()
+    log_disk_usage()
+    log_disk_io_usage()
+    log_net_io_usage()
 

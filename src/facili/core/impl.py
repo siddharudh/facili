@@ -18,11 +18,10 @@
 
 import importlib, pkgutil
 import time
+import threading
 
-plugin_data_func = {}
-plugin_module_name = ''
 
-PLUGINS_BASE_NAME = 'facili.plugins'
+################## Decorators ##################
 
 def data(key):
     def data_decorator(func):
@@ -43,14 +42,32 @@ def cache(dur=31536000000):
     return cache_decorator
 
 
-def timer(seconds):
-    def timer_decorator(func):
-        def func_wrapper():
-            if not seconds or type(seconds) != int:
-                raise Exception('Invalid value for timer seconds')
-            return func()
-        return func_wrapper
-    return timer_decorator
+def at_interval(seconds):
+    if type(seconds) not in (int, float) or seconds <= 0:
+        raise Exception('Invalid at_interval seconds')
+    def at_interval_decorator(func):
+        register_timer_func(func, seconds)
+        return func
+    return at_interval_decorator
+
+
+def at_time(h, m, s):
+    try:
+        time.strptime('%d:%d:%d' % (h, m, s), '%H:%M:%S')
+    except:
+        raise Exception('Invalid at_time time')
+    def at_time_decorator(func):
+        register_timer_func(func, (h, m, s))
+        return func
+    return at_time_decorator
+
+
+################## Implementation ##################
+
+plugin_data_func = {}
+plugin_module_name = ''
+
+PLUGINS_BASE_NAME = 'facili.plugins'
 
 
 def build_plugin_data_functions(module):
@@ -76,6 +93,40 @@ def register_plugin_data_func(key, func):
     func.key = p
 
 
+timer_func = []
+last_exec_time = {}
+
+
+def register_timer_func(func, tval):
+    global timer_func
+    timer_func.append((func, tval))
+
+
+def timer_thread_exec():
+    while True:
+        t = time.time()
+        for func, tval in timer_func:
+            if type(tval) in (int, float):
+                if (t - last_exec_time.get(func, 0)) >= tval:
+                    func()
+                    last_exec_time[func] = last_exec_time.get(func, t) + tval
+            elif type(tval) == tuple and len(tval) == 3:
+                now = time.strftime('%H:%M:%S', time.localtime(t))
+                sched = '%02d:%02d:%02d' % tval
+                if now == sched and t - last_exec_time.get(func, 0) > 1:
+                    func()
+                    last_exec_time[func] = t
+        time.sleep(0.1)
+
+
+timer_thread = threading.Thread(target=timer_thread_exec)
+timer_thread.daemon = True
+
+def start_timer_thread():
+    global timer_thread
+    timer_thread.start()
+
+
 def get_data(keys=[]):
     """Collects data from all plugins and returns in JSON format"""
     if type(keys) == str:
@@ -87,6 +138,7 @@ def get_data(keys=[]):
                 func = plugin_data_func[key]
                 output[key] = func()
     return output
+
 
 def list_plugins():
     plugins = {}
