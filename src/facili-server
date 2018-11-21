@@ -28,12 +28,15 @@ bottle.TEMPLATE_PATH = ['../web/templates']
 @route('/data')
 def serve_data():
     k = request.query.get('k')
-    keys = k.split(',') if k else [] 
-    return get_data(keys)
+    keys = k.split(',') if k else []
+    query = dict(request.query.decode())
+    if 'k' in query:
+        del query['k']
+    return get_data(keys, query)
 
 
 @route('/static/<path:path>')
-def  serve_static_content(path):
+def serve_static_content(path):
     return static_file(path, root='../web/static')
 
 
@@ -44,4 +47,4 @@ def serve_view():
 
 start_timer_thread()
 
-run(host='0.0.0.0', port=8888, server='twisted')
+run(host='0.0.0.0', port=4444, server='twisted')

@@ -142,6 +142,14 @@ if not psutil.MACOS:
 
 proc_io_counters = {}
 
+def construct_cmdline(argv):
+    fargv = []
+    for i, s in enumerate(argv):
+        if i >= 2 and len(s) > 40:
+            continue
+        fargv.append(s)
+    return ' '.join(fargv)
+
 def top_processes(top_count):
     t = time.time()
     data = {}
@@ -149,7 +157,7 @@ def top_processes(top_count):
 
     top_cpu = sorted(proc_list, key=lambda p: p.info.get('cpu_percent'),
                       reverse=True)[:top_count]
-    data['cpu'] = [(p.pid, p.info['name'], ' '.join(p.info['cmdline']),
+    data['cpu'] = [(p.pid, p.info['name'], construct_cmdline(p.info['cmdline']),
                    round(p.info.get('cpu_percent'), 1),
                    hr_dur(p.info['cpu_times'].user
                                       + p.info['cpu_times'].system))
@@ -157,7 +165,7 @@ def top_processes(top_count):
 
     top_mem = sorted(proc_list, key=lambda p: p.info.get('memory_percent'),
                       reverse=True)[:top_count]
-    data['mem'] = [(p.pid, p.info['name'], ' '.join(p.info['cmdline']),
+    data['mem'] = [(p.pid, p.info['name'], construct_cmdline(p.info['cmdline']),
                    round(p.info.get('memory_percent'), 1),
                    hr_size(p.info['memory_info'].rss, 0))
                    for p in top_mem]
@@ -194,7 +202,7 @@ def top_processes(top_count):
 
         top_io = sorted(proc_list, key=lambda p: total_io(p.pid),
                           reverse=True)[:top_count]
-        data['io'] = [(p.pid, p.info['name'], ' '.join(p.info['cmdline']),
+        data['io'] = [(p.pid, p.info['name'], construct_cmdline(p.info['cmdline']),
                hr_size(total_read(p.pid) or 0, 0),
                hr_size(total_write(p.pid) or 0, 0))
               for p in top_io]

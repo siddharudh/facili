@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 
-from facili import get_data, at_interval
+from facili import get_data, at_interval, at_time
 from capture_impl import *
 
 
@@ -74,6 +74,12 @@ def log_net_io_usage():
     log_row('net_io', net_io)
 
 
+@check_interval('top5')
+def log_net_io_usage():
+    top5 = get_key_data('resmon.live.top5')
+    log_row('top5', top5)
+
+
 @at_interval(1)
 def log_all():
     log_cpu_usage()
@@ -81,4 +87,9 @@ def log_all():
     log_disk_usage()
     log_disk_io_usage()
     log_net_io_usage()
+
+
+@at_interval(3600)
+def logs_housekeeping():
+    cleanup_old_logs()
 

@@ -127,10 +127,11 @@ def start_timer_thread():
     timer_thread.start()
 
 
-def get_data(keys=[]):
+def get_data(keys=[], query={}):
     """Collects data from all plugins and returns in JSON format"""
     if type(keys) == str:
         keys = [keys]
+    set_query(query)
     output = {}
     for key in plugin_data_func:
         if not keys or any((key == k or key.startswith(k + '.') for k in keys)):
@@ -150,4 +151,19 @@ def list_plugins():
         sm = importlib.import_module('facili.plugins.' + submodule)
         plugins[submodule] = filter(None, sm.__doc__.split('\n'))
     return plugins
+
+
+_local_store = threading.local()
+
+
+def set_query(query):
+    global _local_store
+    _local_store.query = query
+
+
+def get_query():
+    global _local_store
+    if hasattr(_local_store, 'query'):
+        return _local_store.query or {}
+    return {}
 

@@ -15,14 +15,22 @@
 # You should have received a copy of the GNU Lesser General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+RESOURCE_TYPES = ('cpu', 'mem', 'disk', 'disk_io', 'net_io', 'top5')
 
-CAPTURE_INTERVALS = {
-    'cpu': 5,
-    'mem': 10,
-    'disk': 60,
-    'disk_io': 5,
-    'net_io': 5
+CAPTURE_INTERVAL = {
+    'cpu': 60,
+    'mem': 60,
+    'disk': 300,
+    'disk_io': 60,
+    'net_io': 60,
+    'top5': 60
 }
+
+MAX_LOG_SIZE = {}
+MAX_LOG_DAYS = {}
+
+DEFAULT_MAX_LOG_SIZE = 150      # MB
+DEFAULT_MAX_LOG_DAYS = 365      # days
 
 import os
 import json
@@ -38,23 +46,56 @@ def read_config():
     cfg = ConfigParser.ConfigParser()
     cfg.read(os.path.join(*(CONF_DIR + ['resmon.conf'])))
     try:
-        CAPTURE_INTERVALS.update({ key: int(val) for key, val in cfg.items('capture_interval') })
+        default = None
+        if cfg.has_option('capture_interval', '*'):
+            default = cfg.getint('capture_interval', '*')
+        for key in RESOURCE_TYPES:
+            if cfg.has_option('capture_interval', key):
+                CAPTURE_INTERVAL[key] = cfg.getint('capture_interval', key)
+            elif default:
+                CAPTURE_INTERVAL[key] = default
+    except ConfigParser.NoSectionError, err:
+        pass
+    try:
+        default = None
+        if cfg.has_option('max_log_size', '*'):
+            default = cfg.getint('max_log_size', '*')
+        for key in RESOURCE_TYPES:
+            if cfg.has_option('max_log_size', key):
+                MAX_LOG_SIZE[key] = cfg.getint('max_log_size', key)
+            elif default:
+                MAX_LOG_SIZE[key] = default
+            else:
+                MAX_LOG_SIZE[key] = DEFAULT_MAX_LOG_SIZE
+    except ConfigParser.NoSectionError, err:
+        pass
+    try:
+        default = None
+        if cfg.has_option('max_log_days', '*'):
+            default = cfg.getint('max_log_days', '*')
+        for key in RESOURCE_TYPES:
+            if cfg.has_option('max_log_days', key):
+                MAX_LOG_DAYS[key] = cfg.getint('max_log_days', key)
+            elif default:
+                MAX_LOG_DAYS[key] = default
+            else:
+                MAX_LOG_DAYS[key] = DEFAULT_MAX_LOG_DAYS
     except ConfigParser.NoSectionError, err:
         pass
 
 
 read_config()
 
-last_log_time = { key : time.time() for key in CAPTURE_INTERVALS }
+last_log_time = { key : time.time() for key in CAPTURE_INTERVAL }
 
 def check_interval(key):
     global last_log_time
     def check_interval_decorator(func):
         def func_wrapper():
             t = time.time()
-            if (t - last_log_time[key]) >= CAPTURE_INTERVALS[key]:
+            if (t - last_log_time[key]) >= CAPTURE_INTERVAL[key]:
                 func()
-                last_log_time[key] += CAPTURE_INTERVALS[key]
+                last_log_time[key] += CAPTURE_INTERVAL[key]
         return func_wrapper
     return check_interval_decorator
 
@@ -67,6 +108,10 @@ def log_row(key, data):
     if not os.path.exists(dir_path):
         os.makedirs(dir_path)
     with open(file_path, 'a') as f:
-        data['t'] = int(time.time())
+        data['t'] = int(round(time.time()))
         json.dump(data, f, separators=(',',':'))
         f.write('\r\n')
+
+
+def cleanup_old_logs():
+    pass
