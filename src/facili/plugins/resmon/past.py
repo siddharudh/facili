@@ -24,45 +24,95 @@ import json
 DATA_DIR = ['..', 'data', 'plugins', 'resmon']
 
 
-def build_samples_output(res_type, *keys):
+class samples_store:
+    def __init__(self, fields):
+        self.fields = fields
+        self.reset_samples()
+
+    def reset_samples(self):
+        self.samples = {f: list() for f in self.fields}
+
+    def add_sample(self, sample):
+        for f in self.fields:
+            self.samples[f].append(sample.get(f) or 0)
+
+    def get_max_values(self):
+        max_values = {}
+        for f in self.fields:
+            if self.samples[f]:
+                max_values[f] = max(self.samples[f])
+        return max_values
+
+
+def samples_loader(res_type, date):
+    if not res_type or not date:
+        return
+    path = os.path.join(*(DATA_DIR + [res_type, date + '.log']))
+    if os.path.exists(path):
+        with open(path) as log_file:
+            for line in log_file:
+                sample = json.loads(line)
+                yield sample
+
+
+def build_samples_output(res_type, fields, level=1):
     result = {}
     q = get_query()
     result.update(q)
-    t, d, i = q.get('t'), q.get('d'), q.get('i')
     interval = 0
     try:
-        interval = int(i)
+        interval = int(q.get('i'))
     except:
         pass
     next_t = 0
-    temp = {k: list() for k in keys}
-    if d:
-        path = os.path.join(*(DATA_DIR + [res_type, d + '.log']))
-        if os.path.exists(path):
-            samples = []
-            with open(path) as log_file:
-                for line in log_file:
-                    sample = json.loads(line)
-                    for k in keys:
-                        temp[k].append(sample.get(k) or 0)
-                    if sample['t'] >= next_t:
-                        data = {}
-                        for k in keys:
-                            if temp[k]:
-                                data[k] = max(temp[k])
-                        if data:
-                            data['t'] = sample['t']
-                            samples.append(data)
-                        temp = {k: list() for k in keys}
-                        next_t = sample['t'] + interval
-            result['samples'] = samples
+    samples = []
+    ss_map = {'': samples_store(fields)}
+    for sample in samples_loader(res_type, q.get('d')):
+        if level == 1:
+            ss_map[''].add_sample(sample)
+        elif level == 2:
+            for k in sample:
+                if type(sample[k]) == dict:
+                    if k not in ss_map:
+                        ss_map[k] = samples_store(fields)
+                    ss_map[k].add_sample(sample[k])
+        if sample['t'] >= next_t:
+            data = {}
+            if level == 1:
+                data = ss_map[''].get_max_values()
+                ss_map[''].reset_samples()
+            else:
+                for k in ss_map:
+                    if k:
+                        data[k] = ss_map[k].get_max_values()
+                        ss_map[k].reset_samples()
+            if data:
+                data['t'] = sample['t']
+                samples.append(data)
+            next_t = sample['t'] + interval
+    result['samples'] = samples
     return result
 
 
 @data('_cpu')
 def past_cpu_data():
-    return build_samples_output('cpu', 'ac', 'l')
+    return build_samples_output('cpu', ['ac', 'l'])
 
 @data('_mem')
-def past_cpu_data():
-    return build_samples_output('mem', 'p')
+def past_mem_data():
+    return build_samples_output('mem', ['p'])
+
+
+@data('_disk')
+def past_disk_data():
+    return build_samples_output('disk', ['p'], 2)
+
+
+@data('_disk_io')
+def past_disk_io_data():
+    return build_samples_output('disk_io', ['r', 'w'], 2)
+
+
+@data('_net_io')
+def past_net_io_data():
+    return build_samples_output('net_io', ['r', 's'], 2)
