@@ -20,7 +20,7 @@ cd facili
 
 ### Running Facili server
 ```
-./run.sh
+sudo ./run.sh
 ```
 
-Open browser and visit the URL: http://127.0.0.1:8888
+Open browser and visit the URL: http://127.0.0.1:4444
